@@ -65,7 +65,7 @@ function breeze_block_tile_group_get_components() {
 
             $properties[] = array(
                 'id'      => (string) $property['id'],
-                'label'   => $property['label'] ?? (string) $property['id'],
+                'label'   => $property['label'] ?? ($property['name'] ?? (string) $property['id']),
                 'type'    => $property['type'] ?? 'text',
                 'default' => $property['default'] ?? null,
                 'options' => $property['options'] ?? null,
@@ -74,12 +74,42 @@ function breeze_block_tile_group_get_components() {
 
         $components[] = array(
             'id'         => (string) $component['id'],
-            'label'      => $component['label'] ?? ($component['title'] ?? __('(Untitled component)', 'breeze-block-tile-group')),
+            'label'      => breeze_block_tile_group_component_label($component),
             'properties' => $properties,
+            // Debug aid: the raw keys Bricks stores for this component, so the
+            // data shape can be inspected via window.BreezeTileGroupData
+            '_keys'      => array_keys($component),
         );
     }
 
     return $components;
+}
+
+/**
+ * Find the component's display name. Bricks has stored it under different
+ * keys across versions, so try the known candidates in order, then fall back
+ * to the root element's label.
+ */
+function breeze_block_tile_group_component_label($component) {
+    foreach (array('label', 'title', 'name', 'desc') as $key) {
+        if (!empty($component[$key]) && is_string($component[$key])) {
+            return $component[$key];
+        }
+    }
+
+    foreach ((array) ($component['elements'] ?? array()) as $element) {
+        if (empty($element['parent'])) {
+            if (!empty($element['label']) && is_string($element['label'])) {
+                return $element['label'];
+            }
+            if (!empty($element['settings']['_label']) && is_string($element['settings']['_label'])) {
+                return $element['settings']['_label'];
+            }
+            break;
+        }
+    }
+
+    return __('(Untitled component)', 'breeze-block-tile-group');
 }
 
 /**
