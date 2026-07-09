@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "breeze/tile",
+  "version": "1.0.0",
+  "title": "Tile",
+  "category": "design",
+  "icon": "screenoptions",
+  "description": "One tile inside a Tile Group — an editable Bricks component instance",
+  "textdomain": "breeze-block-tile-group",
+  "parent": ["breeze/tile-group"],
+  "attributes": {
+    "properties": {
+      "type": "object",
+      "default": {}
+    },
+    "componentId": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "usesContext": ["breeze/componentId"],
+  "supports": {
+    "html": false,
+    "reusable": false
+  },
+  "render": "file:./template.php"
+}
