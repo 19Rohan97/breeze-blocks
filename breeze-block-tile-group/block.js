@@ -38,6 +38,9 @@
 
         switch (type) {
             case 'textarea':
+            case 'richtext':
+            case 'editor':
+            case 'wysiwyg':
                 return el(TextareaControl, {
                     key: key,
                     label: label,
@@ -71,6 +74,8 @@
             }
 
             case 'checkbox':
+            case 'toggle':
+            case 'switch':
                 return el(ToggleControl, {
                     key: key,
                     label: label,
@@ -177,7 +182,7 @@
                 return el(TextControl, {
                     key: key,
                     label: label,
-                    help: __('Icon class, e.g. "fas fa-star"', 'breeze-block-tile-group'),
+                    help: __('Icon class, e.g. "fas fa-star", "ti-bolt-alt" or "ion-md-alarm". The icon library is detected automatically.', 'breeze-block-tile-group'),
                     value: icon,
                     onChange: onChange
                 });

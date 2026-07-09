@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Breeze Block Tile Group
  * Description: A grid block whose tiles are instances of a Bricks component — each tile individually editable in the block editor
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Your Name
  * Text Domain: breeze-block-tile-group
  * Requires at least: 6.0
@@ -223,7 +223,13 @@ function breeze_block_tile_group_normalize_properties($component, $values) {
     $normalized = array();
 
     foreach ($values as $id => $value) {
-        $normalized[$id] = breeze_block_tile_group_normalize_value($schema[$id] ?? 'text', $value);
+        $value = breeze_block_tile_group_normalize_value($schema[$id] ?? 'text', $value);
+
+        // A null result means "unset" (e.g. a toggle switched off): Bricks
+        // treats a missing setting as off, so drop the key entirely.
+        if ($value !== null) {
+            $normalized[$id] = $value;
+        }
     }
 
     return $normalized;
@@ -266,11 +272,16 @@ function breeze_block_tile_group_normalize_value($type, $value) {
         case 'icon':
             if (is_string($value) && $value !== '') {
                 return array(
-                    'library' => 'fontawesome',
+                    'library' => breeze_block_tile_group_icon_library($value),
                     'icon'    => $value,
                 );
             }
             return $value;
+
+        case 'checkbox':
+        case 'toggle':
+        case 'switch':
+            return $value ? true : null;
 
         case 'number':
             return is_numeric($value) ? $value + 0 : $value;
@@ -278,6 +289,31 @@ function breeze_block_tile_group_normalize_value($type, $value) {
         default:
             return $value;
     }
+}
+
+/**
+ * Detect the Bricks icon library from an icon class prefix.
+ */
+function breeze_block_tile_group_icon_library($icon_class) {
+    $icon_class = trim($icon_class);
+
+    if (strpos($icon_class, 'fab ') === 0) {
+        return 'fontawesomeBrands';
+    }
+    if (strpos($icon_class, 'far ') === 0) {
+        return 'fontawesomeRegular';
+    }
+    if (strpos($icon_class, 'fas ') === 0 || strpos($icon_class, 'fa') === 0) {
+        return 'fontawesomeSolid';
+    }
+    if (strpos($icon_class, 'ion') === 0) {
+        return 'ionicons';
+    }
+    if (strpos($icon_class, 'ti-') === 0) {
+        return 'themify';
+    }
+
+    return 'fontawesomeSolid';
 }
 
 /**
