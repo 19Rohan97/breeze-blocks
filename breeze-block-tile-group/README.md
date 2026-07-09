@@ -4,9 +4,13 @@ A custom WordPress block that arranges **Bricks component blocks** in a responsi
 
 ## Features
 
-- "Tile Group" block with a responsive CSS grid: per-breakpoint columns (desktop/tablet/mobile), column + row gap, and vertical alignment (stretch/top/center/bottom)
+- "Tile Group" block with two layout modes:
+  - **Fixed columns** — per-breakpoint columns (desktop/tablet/mobile)
+  - **Auto-fit** — set a minimum tile width and the grid fits as many columns as space allows
+- Column + row gap and vertical alignment (stretch/top/center/bottom)
 - Component picker listing all Bricks components registered as blocks (pre-selects the one named "Tiles")
 - Settings page (Settings → Tile Group) to choose which components are offered in the picker — new components are available by default
+- Global **progressive reveal** animation toggle: tiles fade in with a gentle upward lift, staggered one after another, when a Tile Group scrolls into view (respects `prefers-reduced-motion`)
 - The grid auto-populates with instances of the selected component; switching the component swaps the tiles
 - Each tile IS a native Bricks component block: clicking it shows Bricks' own Properties panel (real toggles, icon picker, image picker, link control, etc.)
 - Rendering and CSS are handled entirely by Bricks — identical output to inserting the component anywhere else
@@ -25,13 +29,19 @@ This plugin registers only ONE block — the grid wrapper. The tiles are Bricks'
 
 ### `block.json`
 Central configuration:
-- Attributes: `columns`, `columnsTablet`, `columnsMobile`, `gap`, `rowGap`, `verticalAlign`, `componentId`
+- Attributes: `layoutMode`, `minTileWidth`, `columns`, `columnsTablet`, `columnsMobile`, `gap`, `rowGap`, `verticalAlign`, `componentId`
 - Registers `block.js`, `editor.css`, `style.css`, and `template.php`
 
 ### `settings.php`
 Admin settings page (Settings → Tile Group):
 - Include/exclude Bricks components from the Tile Group picker
-- Stores exclusions (option `breeze_block_tile_group_settings`), so newly created components are available without re-saving
+- Global progressive reveal animation toggle
+- Stores settings in the option `breeze_block_tile_group_settings`; component exclusions (not inclusions) are stored, so newly created components are available without re-saving
+
+### `reveal.js`
+Frontend-only script (enqueued when the reveal setting is on and a Tile Group is present):
+- Adds staggered `transition-delay` per tile and toggles a reveal class via `IntersectionObserver`
+- Bails out for `prefers-reduced-motion` and leaves tiles visible if JS is unavailable
 
 ### `template.php`
 Server-side rendering template:

@@ -19,7 +19,8 @@
 
         edit: function(props) {
             const { attributes, setAttributes, clientId } = props;
-            const { columns, columnsTablet, columnsMobile, gap, rowGap, verticalAlign, componentId } = attributes;
+            const { layoutMode, minTileWidth, columns, columnsTablet, columnsMobile, gap, rowGap, verticalAlign, componentId } = attributes;
+            const isAutoFit = layoutMode === 'auto';
 
             // All Bricks component blocks currently registered (skip the
             // hidden placeholders Bricks registers for disabled components,
@@ -88,11 +89,12 @@
             }, [componentId, componentBlocks.length]);
 
             const blockProps = useBlockProps({
-                className: 'breeze-tile-group breeze-tile-group--editor',
+                className: 'breeze-tile-group breeze-tile-group--editor' + (isAutoFit ? ' breeze-tile-group--auto' : ''),
                 style: {
                     '--btg-columns': String(columns || 3),
                     '--btg-columns-tablet': String(columnsTablet || 2),
                     '--btg-columns-mobile': String(columnsMobile || 1),
+                    '--btg-min-width': minTileWidth || '280px',
                     '--btg-gap': gap || '24px',
                     '--btg-row-gap': rowGap || gap || '24px',
                     '--btg-align': verticalAlign || 'stretch'
@@ -122,7 +124,26 @@
                     el(
                         PanelBody,
                         { title: __('Layout', 'breeze-block-tile-group') },
-                        el(RangeControl, {
+                        el(SelectControl, {
+                            label: __('Layout mode', 'breeze-block-tile-group'),
+                            value: layoutMode,
+                            options: [
+                                { label: __('Fixed columns', 'breeze-block-tile-group'), value: 'columns' },
+                                { label: __('Auto-fit (min tile width)', 'breeze-block-tile-group'), value: 'auto' }
+                            ],
+                            onChange: function(value) {
+                                setAttributes({ layoutMode: value });
+                            }
+                        }),
+                        isAutoFit && el(TextControl, {
+                            label: __('Minimum tile width', 'breeze-block-tile-group'),
+                            help: __('The grid fits as many columns as space allows, e.g. 280px', 'breeze-block-tile-group'),
+                            value: minTileWidth,
+                            onChange: function(value) {
+                                setAttributes({ minTileWidth: value });
+                            }
+                        }),
+                        !isAutoFit && el(RangeControl, {
                             label: __('Columns (desktop)', 'breeze-block-tile-group'),
                             min: 1,
                             max: 6,
@@ -131,7 +152,7 @@
                                 setAttributes({ columns: value || 1 });
                             }
                         }),
-                        el(RangeControl, {
+                        !isAutoFit && el(RangeControl, {
                             label: __('Columns (tablet)', 'breeze-block-tile-group'),
                             min: 1,
                             max: 4,
@@ -140,7 +161,7 @@
                                 setAttributes({ columnsTablet: value || 1 });
                             }
                         }),
-                        el(RangeControl, {
+                        !isAutoFit && el(RangeControl, {
                             label: __('Columns (mobile)', 'breeze-block-tile-group'),
                             min: 1,
                             max: 2,

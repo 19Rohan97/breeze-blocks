@@ -23,6 +23,17 @@ function breeze_block_tile_group_register() {
     // "Components in block editor" setting (bricksComponentsInBlockEditor)
     // is enabled. Bricks handles their property controls, rendering and CSS.
     register_block_type(__DIR__);
+
+    // Frontend reveal animation script. Registered (not enqueued) here and
+    // enqueued from template.php only when the global setting is on and a
+    // Tile Group is actually rendered on the page.
+    wp_register_script(
+        'breeze-tile-group-reveal',
+        plugins_url('reveal.js', __FILE__),
+        array(),
+        '1.3.0',
+        true
+    );
 }
 add_action('init', 'breeze_block_tile_group_register');
 
