@@ -45,12 +45,6 @@ if ($layout_mode === 'auto') {
     $classes .= ' breeze-tile-group--auto';
 }
 
-// The reveal animation is a global setting (Settings → Tile Group)
-if (breeze_block_tile_group_reveal_enabled()) {
-    $classes .= ' breeze-tile-group--reveal';
-    wp_enqueue_script('breeze-tile-group-reveal');
-}
-
 // Get block wrapper attributes
 $wrapper_attributes = get_block_wrapper_attributes(array(
     'class' => $classes,

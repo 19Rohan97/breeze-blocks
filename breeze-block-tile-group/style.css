@@ -25,28 +25,3 @@
 .breeze-tile-group.breeze-tile-group--auto {
 	grid-template-columns: repeat(auto-fill, minmax(min(var(--btg-min-width, 280px), 100%), 1fr));
 }
-
-/* Progressive reveal: soft fade + slight upward lift, gentle deceleration.
-   The .breeze-tile-reveal class is added by reveal.js, so tiles stay
-   visible when JavaScript is unavailable. */
-.breeze-tile-reveal {
-	opacity: 0;
-	transform: translateY(18px);
-	transition:
-		opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-		transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-	will-change: opacity, transform;
-}
-
-.breeze-tile-group--reveal.is-revealed > .breeze-tile-reveal {
-	opacity: 1;
-	transform: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.breeze-tile-reveal {
-		opacity: 1;
-		transform: none;
-		transition: none;
-	}
-}

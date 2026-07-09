@@ -24,15 +24,6 @@ function breeze_block_tile_group_get_excluded_components() {
 }
 
 /**
- * Whether the progressive reveal animation is enabled (global setting).
- */
-function breeze_block_tile_group_reveal_enabled() {
-    $settings = get_option(BREEZE_TILE_GROUP_OPTION, array());
-
-    return !empty($settings['reveal_animation']);
-}
-
-/**
  * All saved Bricks components as id => label pairs.
  */
 function breeze_block_tile_group_get_bricks_components() {
@@ -96,10 +87,7 @@ function breeze_block_tile_group_sanitize_settings($input) {
     $all_ids  = array_keys(breeze_block_tile_group_get_bricks_components());
     $excluded = array_values(array_diff($all_ids, $available));
 
-    return array(
-        'excluded_components' => $excluded,
-        'reveal_animation'    => !empty($input['reveal_animation']),
-    );
+    return array('excluded_components' => $excluded);
 }
 
 function breeze_block_tile_group_render_settings_page() {
@@ -131,32 +119,6 @@ function breeze_block_tile_group_render_settings_page() {
         <?php else : ?>
             <form method="post" action="options.php">
                 <?php settings_fields('breeze_block_tile_group'); ?>
-
-                <h2><?php esc_html_e('Animation', 'breeze-block-tile-group'); ?></h2>
-
-                <table class="form-table" role="presentation">
-                    <tbody>
-                        <tr>
-                            <th scope="row" style="padding: 8px 10px 8px 0;">
-                                <label for="breeze-tile-group-reveal">
-                                    <?php esc_html_e('Progressive reveal', 'breeze-block-tile-group'); ?>
-                                </label>
-                            </th>
-                            <td style="padding: 8px 10px;">
-                                <input
-                                    type="checkbox"
-                                    id="breeze-tile-group-reveal"
-                                    name="<?php echo esc_attr(BREEZE_TILE_GROUP_OPTION); ?>[reveal_animation]"
-                                    value="1"
-                                    <?php checked(breeze_block_tile_group_reveal_enabled()); ?>
-                                />
-                                <p class="description">
-                                    <?php esc_html_e('Tiles fade in with a gentle upward lift, staggered one after another, when a Tile Group scrolls into view. Applies to all Tile Group blocks. Respects the visitor\'s reduced-motion preference.', 'breeze-block-tile-group'); ?>
-                                </p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
 
                 <h2><?php esc_html_e('Available components', 'breeze-block-tile-group'); ?></h2>
                 <p class="description">

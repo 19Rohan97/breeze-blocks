@@ -1,15 +1,18 @@
 (function(wp) {
     const { registerBlockType, createBlock } = wp.blocks;
-    const { InspectorControls, InnerBlocks, useBlockProps, useInnerBlocksProps } = wp.blockEditor;
-    const { PanelBody, SelectControl, RangeControl, TextControl, Notice } = wp.components;
+    const { InspectorControls, InnerBlocks, BlockControls, useBlockProps, useInnerBlocksProps } = wp.blockEditor;
+    const { PanelBody, SelectControl, RangeControl, TextControl, Notice, ToolbarGroup, ToolbarButton } = wp.components;
     const { useSelect, useDispatch } = wp.data;
-    const { useEffect } = wp.element;
+    const { useEffect, Fragment } = wp.element;
+    const { createHigherOrderComponent } = wp.compose;
+    const { addFilter } = wp.hooks;
     const { __ } = wp.i18n;
     const el = wp.element.createElement;
 
     // Bricks registers each component as its own block under this namespace
     // (requires the Bricks setting "Components in block editor")
     const BRICKS_PREFIX = 'bricks-components/';
+    const TILE_GROUP_BLOCK = 'breeze/tile-group';
 
     // Plugin settings localized by PHP (Settings → Tile Group)
     const settings = window.BreezeTileGroupSettings || {};
@@ -230,4 +233,69 @@
             return el(InnerBlocks.Content);
         }
     });
+
+    /* --------------------------------------------------------------------
+     * "Duplicate tile" toolbar button
+     *
+     * The tiles are Bricks' own component blocks, so we can't edit their
+     * `edit` component directly. Instead we extend every block's edit via
+     * the editor.BlockEdit filter and add the button only when the block
+     * sits directly inside a Tile Group. Unlike the + appender (which adds
+     * a blank tile), this clones the tile WITH its current property values.
+     * ------------------------------------------------------------------ */
+    const withTileDuplicate = createHigherOrderComponent(function(BlockEdit) {
+        return function(props) {
+            const rootClientId = useSelect(function(select) {
+                return select('core/block-editor').getBlockRootClientId(props.clientId);
+            }, [props.clientId]);
+
+            const parentName = useSelect(function(select) {
+                return rootClientId
+                    ? select('core/block-editor').getBlockName(rootClientId)
+                    : '';
+            }, [rootClientId]);
+
+            const { insertBlock } = useDispatch('core/block-editor');
+            const { getBlockIndex } = useSelect(function(select) {
+                return { getBlockIndex: select('core/block-editor').getBlockIndex };
+            }, []);
+
+            // Only tiles that live directly inside a Tile Group
+            if (parentName !== TILE_GROUP_BLOCK) {
+                return el(BlockEdit, props);
+            }
+
+            function duplicateTile() {
+                // Reset blockId so Bricks assigns the clone a fresh unique ID
+                // (Bricks derives the element ID from this attribute)
+                const attributes = Object.assign({}, props.attributes, { blockId: '' });
+                const clone = createBlock(props.name, attributes);
+                const index = getBlockIndex(props.clientId);
+
+                // Insert right after this tile and select the copy
+                insertBlock(clone, index + 1, rootClientId, true);
+            }
+
+            return el(
+                Fragment,
+                null,
+                el(BlockEdit, props),
+                el(
+                    BlockControls,
+                    null,
+                    el(
+                        ToolbarGroup,
+                        null,
+                        el(ToolbarButton, {
+                            icon: 'admin-page',
+                            label: __('Duplicate tile', 'breeze-block-tile-group'),
+                            onClick: duplicateTile
+                        })
+                    )
+                )
+            );
+        };
+    }, 'withTileDuplicate');
+
+    addFilter('editor.BlockEdit', 'breeze/tile-group/duplicate', withTileDuplicate);
 })(window.wp);
