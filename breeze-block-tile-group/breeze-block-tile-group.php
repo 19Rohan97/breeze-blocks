@@ -3,7 +3,7 @@
  * Plugin Name: Breeze Block Tile Group
  * Description: A grid block whose tiles are Bricks component blocks — each tile individually editable in the block editor
  * Version: 1.4.0
- * Author: Your Name
+ * Author: Breeze Digital
  * Text Domain: breeze-block-tile-group
  * Requires at least: 6.0
  * Requires PHP: 7.4
