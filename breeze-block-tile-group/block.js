@@ -1,220 +1,83 @@
 (function(wp) {
-    const { registerBlockType } = wp.blocks;
-    const { InspectorControls, InnerBlocks, MediaUpload, MediaUploadCheck, useBlockProps, useInnerBlocksProps } = wp.blockEditor;
-    const { PanelBody, Button, SelectControl, RangeControl, TextControl, TextareaControl, ToggleControl, ColorPalette, Notice } = wp.components;
+    const { registerBlockType, createBlock } = wp.blocks;
+    const { InspectorControls, InnerBlocks, useBlockProps, useInnerBlocksProps } = wp.blockEditor;
+    const { PanelBody, SelectControl, RangeControl, TextControl, Notice } = wp.components;
+    const { useSelect, useDispatch } = wp.data;
     const { useEffect } = wp.element;
     const { __ } = wp.i18n;
     const el = wp.element.createElement;
-    const ServerSideRender = wp.serverSideRender;
 
-    // Saved Bricks components (with property schemas), localized by PHP
-    const data = window.BreezeTileGroupData || {};
-    const componentsList = data.components || [];
+    // Bricks registers each component as its own block under this namespace
+    // (requires the Bricks setting "Components in block editor")
+    const BRICKS_PREFIX = 'bricks-components/';
 
-    function findComponent(cid) {
-        return componentsList.find(function(component) {
-            return component.id === cid;
-        }) || null;
-    }
-
-    function componentOptions() {
-        const options = [{ label: __('Select a component…', 'breeze-block-tile-group'), value: '' }];
-
-        componentsList.forEach(function(component) {
-            options.push({ label: component.label, value: component.id });
-        });
-
-        return options;
-    }
-
-    /**
-     * Build the right inspector control for one component property,
-     * based on the property's type.
-     */
-    function propertyControl(prop, value, onChange) {
-        const type = (prop.type || 'text').toLowerCase();
-        const label = prop.label || prop.id;
-        const key = prop.id;
-
-        switch (type) {
-            case 'textarea':
-            case 'richtext':
-            case 'editor':
-            case 'wysiwyg':
-                return el(TextareaControl, {
-                    key: key,
-                    label: label,
-                    value: value || '',
-                    onChange: onChange
-                });
-
-            case 'number':
-                return el(TextControl, {
-                    key: key,
-                    type: 'number',
-                    label: label,
-                    value: value === undefined || value === null ? '' : value,
-                    onChange: onChange
-                });
-
-            case 'select': {
-                const opts = [{ label: __('Default', 'breeze-block-tile-group'), value: '' }];
-                if (prop.options && typeof prop.options === 'object') {
-                    Object.keys(prop.options).forEach(function(optionValue) {
-                        opts.push({ label: String(prop.options[optionValue]), value: optionValue });
-                    });
-                }
-                return el(SelectControl, {
-                    key: key,
-                    label: label,
-                    value: value || '',
-                    options: opts,
-                    onChange: onChange
-                });
-            }
-
-            case 'checkbox':
-            case 'toggle':
-            case 'switch':
-                return el(ToggleControl, {
-                    key: key,
-                    label: label,
-                    checked: !!value,
-                    onChange: onChange
-                });
-
-            case 'color': {
-                let hex = '';
-                if (value && value.hex) {
-                    hex = value.hex;
-                } else if (typeof value === 'string') {
-                    hex = value;
-                }
-                return el(
-                    'div',
-                    { key: key, className: 'breeze-tile-prop' },
-                    el('p', { className: 'breeze-tile-prop__label' }, label),
-                    el(ColorPalette, {
-                        value: hex || undefined,
-                        onChange: function(newHex) {
-                            onChange(newHex ? { hex: newHex } : '');
-                        }
-                    })
-                );
-            }
-
-            case 'image': {
-                const img = value && typeof value === 'object' ? value : null;
-                return el(
-                    'div',
-                    { key: key, className: 'breeze-tile-prop' },
-                    el('p', { className: 'breeze-tile-prop__label' }, label),
-                    el(
-                        MediaUploadCheck,
-                        null,
-                        el(MediaUpload, {
-                            allowedTypes: ['image'],
-                            value: img ? img.id : undefined,
-                            onSelect: function(media) {
-                                onChange({
-                                    id: media.id,
-                                    url: media.url,
-                                    filename: media.filename || '',
-                                    size: 'full'
-                                });
-                            },
-                            render: function(obj) {
-                                return el(
-                                    'div',
-                                    null,
-                                    img && img.url && el('img', {
-                                        src: img.url,
-                                        style: { maxWidth: '100%', display: 'block', marginBottom: '8px' }
-                                    }),
-                                    el(
-                                        Button,
-                                        { onClick: obj.open, variant: 'secondary' },
-                                        img
-                                            ? __('Replace Image', 'breeze-block-tile-group')
-                                            : __('Select Image', 'breeze-block-tile-group')
-                                    ),
-                                    img && el(
-                                        Button,
-                                        {
-                                            onClick: function() { onChange(''); },
-                                            variant: 'tertiary',
-                                            isDestructive: true,
-                                            style: { marginLeft: '8px' }
-                                        },
-                                        __('Remove', 'breeze-block-tile-group')
-                                    )
-                                );
-                            }
-                        })
-                    )
-                );
-            }
-
-            case 'link': {
-                let url = '';
-                if (typeof value === 'string') {
-                    url = value;
-                } else if (value && value.url) {
-                    url = value.url;
-                }
-                return el(TextControl, {
-                    key: key,
-                    label: label,
-                    type: 'url',
-                    placeholder: 'https://',
-                    value: url,
-                    onChange: onChange
-                });
-            }
-
-            case 'icon': {
-                let icon = '';
-                if (value && value.icon) {
-                    icon = value.icon;
-                } else if (typeof value === 'string') {
-                    icon = value;
-                }
-                return el(TextControl, {
-                    key: key,
-                    label: label,
-                    help: __('Icon class, e.g. "fas fa-star", "ti-bolt-alt" or "ion-md-alarm". The icon library is detected automatically.', 'breeze-block-tile-group'),
-                    value: icon,
-                    onChange: onChange
-                });
-            }
-
-            default:
-                // 'text' and any unknown types fall back to a plain text field
-                return el(TextControl, {
-                    key: key,
-                    label: label,
-                    value: value === undefined || value === null ? '' : String(value),
-                    onChange: onChange
-                });
-        }
-    }
-
-    /* --------------------------------------------------------------------
-     * Parent block: Tile Group
-     * (metadata comes from block.json; JS only provides edit/save)
-     * ------------------------------------------------------------------ */
     registerBlockType('breeze/tile-group', {
 
         edit: function(props) {
-            const { attributes, setAttributes } = props;
+            const { attributes, setAttributes, clientId } = props;
             const { columns, gap, componentId } = attributes;
 
-            // Pre-select the default component (the one named "Tiles") on insert
-            useEffect(function() {
-                if (!componentId && data.defaultComponentId) {
-                    setAttributes({ componentId: data.defaultComponentId });
-                }
+            // All Bricks component blocks currently registered (skip the
+            // hidden placeholders Bricks registers for disabled components)
+            const componentBlocks = useSelect(function(select) {
+                return select('core/blocks').getBlockTypes().filter(function(blockType) {
+                    if (blockType.name.indexOf(BRICKS_PREFIX) !== 0) {
+                        return false;
+                    }
+                    return !blockType.supports || blockType.supports.inserter !== false;
+                });
             }, []);
+
+            const innerBlocks = useSelect(function(select) {
+                return select('core/block-editor').getBlocks(clientId);
+            }, [clientId]);
+
+            const { replaceInnerBlocks } = useDispatch('core/block-editor');
+
+            // Pre-select the component named "Tiles" if it exists, else the first one
+            useEffect(function() {
+                if (!componentId && componentBlocks.length) {
+                    const tiles = componentBlocks.find(function(blockType) {
+                        return String(blockType.title).trim().toLowerCase() === 'tiles';
+                    });
+                    const chosen = tiles || componentBlocks[0];
+                    setAttributes({ componentId: chosen.name.slice(BRICKS_PREFIX.length) });
+                }
+            }, [componentBlocks.length]);
+
+            // Populate the grid with instances of the selected component, and
+            // swap the tiles out when a different component is selected
+            useEffect(function() {
+                if (!componentId) {
+                    return;
+                }
+
+                const blockName = BRICKS_PREFIX + componentId;
+
+                const isRegistered = componentBlocks.some(function(blockType) {
+                    return blockType.name === blockName;
+                });
+
+                if (!isRegistered) {
+                    return;
+                }
+
+                const alreadyPopulated = innerBlocks.length > 0 && innerBlocks.every(function(block) {
+                    return block.name === blockName;
+                });
+
+                if (alreadyPopulated) {
+                    return;
+                }
+
+                const count = innerBlocks.length || columns || 3;
+                const newBlocks = [];
+                for (let i = 0; i < count; i++) {
+                    newBlocks.push(createBlock(blockName));
+                }
+
+                replaceInnerBlocks(clientId, newBlocks, false);
+            }, [componentId, componentBlocks.length]);
 
             const blockProps = useBlockProps({
                 className: 'breeze-tile-group breeze-tile-group--editor',
@@ -225,9 +88,17 @@
             });
 
             const innerProps = useInnerBlocksProps(blockProps, {
-                allowedBlocks: ['breeze/tile'],
-                template: [['breeze/tile'], ['breeze/tile'], ['breeze/tile']],
+                allowedBlocks: componentBlocks.map(function(blockType) {
+                    return blockType.name;
+                }),
                 renderAppender: InnerBlocks.ButtonBlockAppender
+            });
+
+            const componentOptions = componentBlocks.map(function(blockType) {
+                return {
+                    label: blockType.title,
+                    value: blockType.name.slice(BRICKS_PREFIX.length)
+                };
             });
 
             return el(
@@ -260,11 +131,12 @@
                     el(
                         PanelBody,
                         { title: __('Component', 'breeze-block-tile-group') },
-                        componentsList.length
+                        componentBlocks.length
                             ? el(SelectControl, {
                                 label: __('Bricks component', 'breeze-block-tile-group'),
+                                help: __('Selecting a different component replaces the tiles in the grid.', 'breeze-block-tile-group'),
                                 value: componentId,
-                                options: componentOptions(),
+                                options: componentOptions,
                                 onChange: function(value) {
                                     setAttributes({ componentId: value });
                                 }
@@ -272,7 +144,7 @@
                             : el(
                                 Notice,
                                 { status: 'warning', isDismissible: false },
-                                __('No Bricks components found. Create one in the Bricks builder first.', 'breeze-block-tile-group')
+                                __('No Bricks component blocks found. Create a component in Bricks and enable "Components in block editor" in the Bricks settings.', 'breeze-block-tile-group')
                             )
                     )
                 ),
@@ -281,83 +153,9 @@
         },
 
         save: function() {
-            // Return InnerBlocks content only
-            // The PHP template (template.php) handles the full rendering
+            // Return InnerBlocks content only (the Bricks component blocks)
+            // The PHP template (template.php) renders the grid wrapper
             return el(InnerBlocks.Content);
-        }
-    });
-
-    /* --------------------------------------------------------------------
-     * Child block: Tile
-     * ------------------------------------------------------------------ */
-    registerBlockType('breeze/tile', {
-
-        edit: function(props) {
-            const { attributes, setAttributes, context } = props;
-            const cid = context['breeze/componentId'] || '';
-            const component = findComponent(cid);
-            const properties = attributes.properties || {};
-
-            function setProp(id, value) {
-                const next = Object.assign({}, properties);
-
-                if (value === '' || value === undefined || value === null) {
-                    delete next[id];
-                } else {
-                    next[id] = value;
-                }
-
-                setAttributes({ properties: next });
-            }
-
-            let controls;
-            if (!cid) {
-                controls = el(
-                    Notice,
-                    { status: 'info', isDismissible: false },
-                    __('Select a component on the parent Tile Group block first.', 'breeze-block-tile-group')
-                );
-            } else if (component && component.properties.length) {
-                controls = component.properties.map(function(prop) {
-                    return propertyControl(prop, properties[prop.id], function(value) {
-                        setProp(prop.id, value);
-                    });
-                });
-            } else {
-                controls = el('p', null, __('This component has no editable properties.', 'breeze-block-tile-group'));
-            }
-
-            const blockProps = useBlockProps({ className: 'breeze-tile breeze-tile--editor' });
-
-            const preview = cid && ServerSideRender
-                ? el(ServerSideRender, {
-                    block: 'breeze/tile',
-                    attributes: {
-                        properties: properties,
-                        componentId: cid
-                    }
-                })
-                : el(
-                    'div',
-                    { className: 'breeze-tile__placeholder' },
-                    __('Tile — select a Bricks component on the parent block.', 'breeze-block-tile-group')
-                );
-
-            return el(
-                'div',
-                null,
-                el(
-                    InspectorControls,
-                    null,
-                    el(PanelBody, { title: __('Tile Content', 'breeze-block-tile-group') }, controls)
-                ),
-                el('div', blockProps, preview)
-            );
-        },
-
-        save: function() {
-            // Fully dynamic block: tile/template.php handles all rendering
-            return null;
         }
     });
 })(window.wp);

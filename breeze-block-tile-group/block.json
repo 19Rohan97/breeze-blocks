@@ -2,11 +2,11 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "breeze/tile-group",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "title": "Tile Group",
   "category": "design",
   "icon": "grid-view",
-  "description": "A grid of Bricks component instances — each tile individually editable",
+  "description": "A grid of Bricks component blocks — each tile individually editable",
   "keywords": ["tiles", "grid", "bricks", "component", "cards"],
   "textdomain": "breeze-block-tile-group",
   "attributes": {
@@ -22,9 +22,6 @@
       "type": "string",
       "default": ""
     }
-  },
-  "providesContext": {
-    "breeze/componentId": "componentId"
   },
   "supports": {
     "align": ["wide", "full"],

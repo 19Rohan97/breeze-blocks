@@ -9,30 +9,3 @@
 	border: 1px dashed #949494;
 	border-radius: 2px;
 }
-
-.breeze-tile--editor {
-	min-height: 40px;
-}
-
-.breeze-tile__placeholder {
-	border: 1px dashed #949494;
-	border-radius: 2px;
-	padding: 24px;
-	text-align: center;
-	color: #757575;
-	font-size: 13px;
-}
-
-/* Inspector: generated property controls */
-.breeze-tile-prop {
-	margin-bottom: 16px;
-}
-
-.breeze-tile-prop__label {
-	display: block;
-	margin: 0 0 8px;
-	font-size: 11px;
-	font-weight: 500;
-	line-height: 1.4;
-	text-transform: uppercase;
-}
