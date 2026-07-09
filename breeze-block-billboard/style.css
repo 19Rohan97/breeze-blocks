@@ -1,0 +1,96 @@
+/* Full width using WordPress alignfull */
+.billboard-block {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30rem;
+    overflow: hidden;
+}
+
+.billboard-block.no-image {
+    background-color: #999999;
+}
+
+.billboard-block .billboard-block__image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Video background */
+.billboard-block .billboard-block__video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Darken overlay option */
+.billboard-block.has-darken-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Caption positioned bottom right - hidden by default */
+.billboard-block .billboard-block__caption {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    z-index: 1;
+    max-width: 50%;
+    display: none;
+}
+
+.billboard-block .billboard-block__container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.billboard-block .billboard-block__content {
+    width: 100%;
+    text-align: center;
+}
+
+.billboard-block .billboard-block__content .wp-block-buttons {
+    justify-content: center;
+}
+
+/* Responsive container widths */
+@media (min-width: 1200px) {
+    .billboard-block .billboard-block__container {
+        max-width: 1140px;
+    }
+}
+
+@media (min-width: 1440px) {
+    .billboard-block .billboard-block__container {
+        max-width: 1400px;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .billboard-block {
+        min-height: 20rem;
+    }
+}

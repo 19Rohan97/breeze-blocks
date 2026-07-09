@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "breeze/billboard",
+  "version": "1.0.0",
+  "title": "Billboard",
+  "category": "media",
+  "icon": "cover-image",
+  "description": "A cover-style block with optional image background and customizable content",
+  "keywords": ["cover", "hero", "banner", "image"],
+  "textdomain": "breeze-block-billboard",
+  "attributes": {
+    "backgroundImage": {
+      "type": "object",
+      "default": null
+    },
+    "imageSize": {
+      "type": "string",
+      "default": "large"
+    },
+    "focalPoint": {
+      "type": "object",
+      "default": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "alt": {
+      "type": "string",
+      "default": ""
+    },
+    "caption": {
+      "type": "string",
+      "default": ""
+    },
+    "videoUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "overlay": {
+      "type": "string",
+      "default": "default",
+      "enum": ["default", "darken"]
+    },
+    "align": {
+      "type": "string",
+      "default": "full"
+    }
+  },
+  "supports": {
+    "spacing": {
+      "padding": true,
+      "margin": true
+    },
+    "html": false
+  },
+  "editorScript": "file:./block.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css",
+  "render": "file:./template.php"
+}
