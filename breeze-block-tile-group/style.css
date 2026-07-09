@@ -3,17 +3,19 @@
 .breeze-tile-group {
 	display: grid;
 	grid-template-columns: repeat(var(--btg-columns, 3), minmax(0, 1fr));
-	gap: var(--btg-gap, 24px);
+	column-gap: var(--btg-gap, 24px);
+	row-gap: var(--btg-row-gap, var(--btg-gap, 24px));
+	align-items: var(--btg-align, stretch);
 }
 
 @media (max-width: 991px) {
 	.breeze-tile-group {
-		grid-template-columns: repeat(min(var(--btg-columns, 3), 2), minmax(0, 1fr));
+		grid-template-columns: repeat(var(--btg-columns-tablet, 2), minmax(0, 1fr));
 	}
 }
 
 @media (max-width: 767px) {
 	.breeze-tile-group {
-		grid-template-columns: 1fr;
+		grid-template-columns: repeat(var(--btg-columns-mobile, 1), minmax(0, 1fr));
 	}
 }

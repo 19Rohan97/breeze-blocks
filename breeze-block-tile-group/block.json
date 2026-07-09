@@ -2,7 +2,7 @@
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
   "name": "breeze/tile-group",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "title": "Tile Group",
   "category": "design",
   "icon": "grid-view",
@@ -14,9 +14,25 @@
       "type": "number",
       "default": 3
     },
+    "columnsTablet": {
+      "type": "number",
+      "default": 2
+    },
+    "columnsMobile": {
+      "type": "number",
+      "default": 1
+    },
     "gap": {
       "type": "string",
       "default": "24px"
+    },
+    "rowGap": {
+      "type": "string",
+      "default": ""
+    },
+    "verticalAlign": {
+      "type": "string",
+      "default": "stretch"
     },
     "componentId": {
       "type": "string",

@@ -11,20 +11,28 @@
     // (requires the Bricks setting "Components in block editor")
     const BRICKS_PREFIX = 'bricks-components/';
 
+    // Plugin settings localized by PHP (Settings → Tile Group)
+    const settings = window.BreezeTileGroupSettings || {};
+    const excludedComponents = settings.excludedComponents || [];
+
     registerBlockType('breeze/tile-group', {
 
         edit: function(props) {
             const { attributes, setAttributes, clientId } = props;
-            const { columns, gap, componentId } = attributes;
+            const { columns, columnsTablet, columnsMobile, gap, rowGap, verticalAlign, componentId } = attributes;
 
             // All Bricks component blocks currently registered (skip the
-            // hidden placeholders Bricks registers for disabled components)
+            // hidden placeholders Bricks registers for disabled components,
+            // and components excluded on the Settings → Tile Group page)
             const componentBlocks = useSelect(function(select) {
                 return select('core/blocks').getBlockTypes().filter(function(blockType) {
                     if (blockType.name.indexOf(BRICKS_PREFIX) !== 0) {
                         return false;
                     }
-                    return !blockType.supports || blockType.supports.inserter !== false;
+                    if (blockType.supports && blockType.supports.inserter === false) {
+                        return false;
+                    }
+                    return excludedComponents.indexOf(blockType.name.slice(BRICKS_PREFIX.length)) === -1;
                 });
             }, []);
 
@@ -83,7 +91,11 @@
                 className: 'breeze-tile-group breeze-tile-group--editor',
                 style: {
                     '--btg-columns': String(columns || 3),
-                    '--btg-gap': gap || '24px'
+                    '--btg-columns-tablet': String(columnsTablet || 2),
+                    '--btg-columns-mobile': String(columnsMobile || 1),
+                    '--btg-gap': gap || '24px',
+                    '--btg-row-gap': rowGap || gap || '24px',
+                    '--btg-align': verticalAlign || 'stretch'
                 }
             });
 
@@ -111,12 +123,30 @@
                         PanelBody,
                         { title: __('Layout', 'breeze-block-tile-group') },
                         el(RangeControl, {
-                            label: __('Columns', 'breeze-block-tile-group'),
+                            label: __('Columns (desktop)', 'breeze-block-tile-group'),
                             min: 1,
                             max: 6,
                             value: columns,
                             onChange: function(value) {
                                 setAttributes({ columns: value || 1 });
+                            }
+                        }),
+                        el(RangeControl, {
+                            label: __('Columns (tablet)', 'breeze-block-tile-group'),
+                            min: 1,
+                            max: 4,
+                            value: columnsTablet,
+                            onChange: function(value) {
+                                setAttributes({ columnsTablet: value || 1 });
+                            }
+                        }),
+                        el(RangeControl, {
+                            label: __('Columns (mobile)', 'breeze-block-tile-group'),
+                            min: 1,
+                            max: 2,
+                            value: columnsMobile,
+                            onChange: function(value) {
+                                setAttributes({ columnsMobile: value || 1 });
                             }
                         }),
                         el(TextControl, {
@@ -125,6 +155,27 @@
                             value: gap,
                             onChange: function(value) {
                                 setAttributes({ gap: value });
+                            }
+                        }),
+                        el(TextControl, {
+                            label: __('Row gap', 'breeze-block-tile-group'),
+                            help: __('Leave empty to use the same value as Gap', 'breeze-block-tile-group'),
+                            value: rowGap,
+                            onChange: function(value) {
+                                setAttributes({ rowGap: value });
+                            }
+                        }),
+                        el(SelectControl, {
+                            label: __('Vertical alignment', 'breeze-block-tile-group'),
+                            value: verticalAlign,
+                            options: [
+                                { label: __('Stretch (equal height)', 'breeze-block-tile-group'), value: 'stretch' },
+                                { label: __('Top', 'breeze-block-tile-group'), value: 'start' },
+                                { label: __('Center', 'breeze-block-tile-group'), value: 'center' },
+                                { label: __('Bottom', 'breeze-block-tile-group'), value: 'end' }
+                            ],
+                            onChange: function(value) {
+                                setAttributes({ verticalAlign: value });
                             }
                         })
                     ),

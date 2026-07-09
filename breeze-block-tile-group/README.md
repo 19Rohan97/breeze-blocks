@@ -4,8 +4,9 @@ A custom WordPress block that arranges **Bricks component blocks** in a responsi
 
 ## Features
 
-- "Tile Group" block with a responsive CSS grid (columns + gap controls)
+- "Tile Group" block with a responsive CSS grid: per-breakpoint columns (desktop/tablet/mobile), column + row gap, and vertical alignment (stretch/top/center/bottom)
 - Component picker listing all Bricks components registered as blocks (pre-selects the one named "Tiles")
+- Settings page (Settings → Tile Group) to choose which components are offered in the picker — new components are available by default
 - The grid auto-populates with instances of the selected component; switching the component swaps the tiles
 - Each tile IS a native Bricks component block: clicking it shows Bricks' own Properties panel (real toggles, icon picker, image picker, link control, etc.)
 - Rendering and CSS are handled entirely by Bricks — identical output to inserting the component anywhere else
@@ -24,8 +25,13 @@ This plugin registers only ONE block — the grid wrapper. The tiles are Bricks'
 
 ### `block.json`
 Central configuration:
-- Attributes: `columns`, `gap`, `componentId`
+- Attributes: `columns`, `columnsTablet`, `columnsMobile`, `gap`, `rowGap`, `verticalAlign`, `componentId`
 - Registers `block.js`, `editor.css`, `style.css`, and `template.php`
+
+### `settings.php`
+Admin settings page (Settings → Tile Group):
+- Include/exclude Bricks components from the Tile Group picker
+- Stores exclusions (option `breeze_block_tile_group_settings`), so newly created components are available without re-saving
 
 ### `template.php`
 Server-side rendering template:
