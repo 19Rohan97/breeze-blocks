@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "breeze/tile-group",
+  "version": "1.0.0",
+  "title": "Tile Group",
+  "category": "design",
+  "icon": "grid-view",
+  "description": "A grid of Bricks component instances — each tile individually editable",
+  "keywords": ["tiles", "grid", "bricks", "component", "cards"],
+  "textdomain": "breeze-block-tile-group",
+  "attributes": {
+    "columns": {
+      "type": "number",
+      "default": 3
+    },
+    "gap": {
+      "type": "string",
+      "default": "24px"
+    },
+    "componentId": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "providesContext": {
+    "breeze/componentId": "componentId"
+  },
+  "supports": {
+    "align": ["wide", "full"],
+    "spacing": {
+      "padding": true,
+      "margin": true
+    },
+    "html": false
+  },
+  "editorScript": "file:./block.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css",
+  "render": "file:./template.php"
+}

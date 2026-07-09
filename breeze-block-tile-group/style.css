@@ -1,0 +1,19 @@
+/* Tile Group block — frontend and editor grid */
+
+.breeze-tile-group {
+	display: grid;
+	grid-template-columns: repeat(var(--btg-columns, 3), minmax(0, 1fr));
+	gap: var(--btg-gap, 24px);
+}
+
+@media (max-width: 991px) {
+	.breeze-tile-group {
+		grid-template-columns: repeat(min(var(--btg-columns, 3), 2), minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 767px) {
+	.breeze-tile-group {
+		grid-template-columns: 1fr;
+	}
+}
