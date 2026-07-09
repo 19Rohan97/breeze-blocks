@@ -1,0 +1,54 @@
+/* Breeze Slider — editor preview (static; the real slider runs on the frontend) */
+
+.breeze-slider-editor__hint {
+	font-size: 12px;
+	color: #757575;
+	margin-bottom: 8px;
+}
+
+.breeze-slider-editor__strip {
+	display: flex;
+	gap: 12px;
+	overflow-x: auto;
+	padding-bottom: 8px;
+	scroll-snap-type: x mandatory;
+}
+
+.breeze-slider-editor__slide {
+	flex: 0 0 auto;
+	width: min(100%, 640px);
+	scroll-snap-align: start;
+}
+
+.breeze-slider-editor__slide img {
+	display: block;
+	width: 100%;
+	height: var(--brs-height, 600px);
+	max-height: 60vh;
+	object-fit: var(--brs-fit, cover);
+	border-radius: var(--brs-radius, 4px);
+}
+
+.breeze-slider-editor__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.breeze-slider-editor__dots {
+	display: flex;
+	gap: 6px;
+}
+
+.breeze-slider-editor__dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #c3c4c7;
+}
+
+.breeze-slider-editor__dot.is-active {
+	background: #1e1e1e;
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "breeze/slider",
+  "version": "1.0.0",
+  "title": "Slider",
+  "category": "media",
+  "icon": "images-alt2",
+  "description": "An image slider/carousel powered by Splide",
+  "keywords": ["slider", "carousel", "gallery", "splide", "slideshow"],
+  "textdomain": "breeze-block-slider",
+  "attributes": {
+    "images": {
+      "type": "array",
+      "default": []
+    },
+    "type": {
+      "type": "string",
+      "default": "loop"
+    },
+    "perPage": {
+      "type": "number",
+      "default": 1
+    },
+    "perMove": {
+      "type": "number",
+      "default": 1
+    },
+    "gap": {
+      "type": "string",
+      "default": "16px"
+    },
+    "arrows": {
+      "type": "boolean",
+      "default": false
+    },
+    "pagination": {
+      "type": "boolean",
+      "default": true
+    },
+    "autoplay": {
+      "type": "boolean",
+      "default": false
+    },
+    "interval": {
+      "type": "number",
+      "default": 4000
+    },
+    "speed": {
+      "type": "number",
+      "default": 600
+    },
+    "rounded": {
+      "type": "string",
+      "default": "4px"
+    },
+    "height": {
+      "type": "string",
+      "default": "600px"
+    },
+    "objectFit": {
+      "type": "string",
+      "default": "cover"
+    }
+  },
+  "supports": {
+    "align": ["wide", "full"],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "html": false
+  },
+  "editorScript": "file:./block.js",
+  "editorStyle": "file:./editor.css",
+  "render": "file:./template.php"
+}

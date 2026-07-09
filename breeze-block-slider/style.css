@@ -1,0 +1,63 @@
+/* Breeze Slider — frontend
+   Loaded after the Splide library CSS so these overrides win. */
+
+.breeze-slider {
+	position: relative;
+	width: 100%;
+}
+
+.breeze-slider .splide__slide {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.breeze-slider__image {
+	display: block;
+	width: 100%;
+	height: var(--brs-height, 600px);
+	object-fit: var(--brs-fit, cover);
+	border-radius: var(--brs-radius, 4px);
+}
+
+/* When "Contain" is chosen, don't crop — keep the whole image visible */
+.breeze-slider[style*="--brs-fit:contain"] .breeze-slider__image {
+	object-fit: contain;
+}
+
+/* Pagination dots (matches the design: centered, near the bottom) */
+.breeze-slider .splide__pagination {
+	bottom: 1.5em;
+	gap: 4px;
+}
+
+.breeze-slider .splide__pagination__page {
+	width: 10px;
+	height: 10px;
+	margin: 0;
+	background: rgba(255, 255, 255, 0.6);
+	opacity: 1;
+	transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.breeze-slider .splide__pagination__page.is-active {
+	background: #ffffff;
+	transform: scale(1);
+}
+
+/* Arrows: subtle, only shown when enabled */
+.breeze-slider .splide__arrow {
+	background: rgba(255, 255, 255, 0.85);
+	opacity: 1;
+}
+
+.breeze-slider .splide__arrow:hover:not(:disabled) {
+	background: #ffffff;
+}
+
+/* Responsive: cap the fixed height on smaller screens */
+@media (max-width: 767px) {
+	.breeze-slider__image {
+		height: min(var(--brs-height, 600px), 60vw);
+	}
+}
